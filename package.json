@@ -1,5 +1,5 @@
 {
-  "name": "@vermilion/post-selector",
+  "name": "@SMGDevelopment/post-selector",
   "version": "1.0.3",
   "description": "A Gutenberg component that allows you to attach posts and pages to a custom block",
   "main": "index.js",

@@ -11,7 +11,7 @@ This is a React component built for Gutenberg that allows you to attach pages an
 ## Installation
 cd to your custom block plugin directory.
 
-`npm install @SMGDevelopment/post-selector`
+`npm install git://github.com/SMGDevelopment/gutenberg-post-selector.git`
 
 ## Usage
 
