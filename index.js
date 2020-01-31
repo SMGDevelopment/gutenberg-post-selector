@@ -2277,9 +2277,20 @@ var thumbnailStyle = {
   overflow: 'hidden',
   margin: '2px'
 };
+var postListStyle = {
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  flexWrap: 'nowrap',
+  background: '#f9f9f9',
+  border: '1px solid #ccc',
+  borderRadius: '3px',
+  padding: '1px',
+  marginBottom: '3px'
+};
 
 function debounce(func) {
-  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
+  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
   var timeout;
   return function () {
     var _this = this;
@@ -2320,8 +2331,8 @@ function (_Component) {
     _this2.onChange = _this2.onChange.bind(_assertThisInitialized(_assertThisInitialized(_this2)));
     _this2.onKeyDown = _this2.onKeyDown.bind(_assertThisInitialized(_assertThisInitialized(_this2)));
     _this2.bindListNode = _this2.bindListNode.bind(_assertThisInitialized(_assertThisInitialized(_this2)));
-    _this2.updateSuggestions = debounce(_this2.updateSuggestions.bind(_assertThisInitialized(_assertThisInitialized(_this2))), 200);
     _this2.limit = _this2.props.limit ? parseInt(_this2.props.limit) : false;
+    _this2.updateSuggestions = debounce(_this2.updateSuggestions.bind(_assertThisInitialized(_assertThisInitialized(_this2))), 1000);
     _this2.suggestionNodes = [];
     _this2.postTypes = null;
     _this2.state = {
@@ -2522,7 +2533,7 @@ function (_Component) {
           title: decodeEntities(response.title.rendered),
           id: response.id,
           excerpt: decodeEntities(excerpt),
-          thumbnail: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
+          cover: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
           url: response.link,
           date: response.date,
           type: response.type,
@@ -2545,20 +2556,11 @@ function (_Component) {
       // show each post in the list.
       return _react.default.createElement("ul", null, this.props.posts.map(function (post, i) {
         return _react.default.createElement("li", {
-          style: {
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            flexWrap: 'nowrap'
-          },
+          style: postListStyle,
           key: post.id
-        }, post.thumbnail ? _react.default.createElement("img", {
-          src: post.thumbnail,
-          style: {
-            width: '50px',
-            height: '50px',
-            margin: '1px'
-          }
+        }, post.cover ? _react.default.createElement("img", {
+          src: post.cover,
+          style: thumbnailStyle
         }) : null,
         /* render the post type if we have the data to support it */
         _this6.hasPostTypeData() && _react.default.createElement("span", {
@@ -2693,7 +2695,7 @@ function (_Component) {
         value: input,
         onChange: this.onChange,
         onInput: stopEventPropagation,
-        placeholder: inputDisabled ? "Limted to ".concat(limit, " posts") : 'Type page or post name',
+        placeholder: inputDisabled ? "Limted to ".concat(limit, " posts") : 'Type recipe or post name',
         onKeyDown: this.onKeyDown,
         role: "combobox",
         "aria-expanded": showSuggestions,

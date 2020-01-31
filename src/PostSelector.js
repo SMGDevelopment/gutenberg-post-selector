@@ -22,10 +22,22 @@ const thumbnailStyle = {
 	height:'50px', 
 	borderRadius: '3px', 
 	overflow: 'hidden', 
-	margin: '2px' 
+	margin: '2px'
 }
 
-function debounce(func, wait = 100) {
+const postListStyle = { 
+	display: 'flex', 
+	justifyContent: 'flex-start', 
+	alignItems: 'center', 
+	flexWrap: 'nowrap',
+	background: '#f9f9f9',
+  border: '1px solid #ccc',
+  borderRadius: '3px',
+  padding: '1px',
+  marginBottom: '3px'
+}
+
+function debounce(func, wait = 1000) {
   let timeout;
   return function (...args) {
     clearTimeout(timeout);
@@ -52,9 +64,8 @@ class PostSelector extends Component {
     this.onChange = this.onChange.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.bindListNode = this.bindListNode.bind(this);
-    this.updateSuggestions = debounce(this.updateSuggestions.bind(this), 200);
     this.limit = this.props.limit ? parseInt(this.props.limit) : false;
-
+		this.updateSuggestions = debounce(this.updateSuggestions.bind(this), 1000);
     this.suggestionNodes = [];
 
     this.postTypes = null;
@@ -215,7 +226,7 @@ class PostSelector extends Component {
         title: decodeEntities(response.title.rendered),
         id: response.id,
         excerpt: decodeEntities(excerpt),
-        thumbnail: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
+        cover: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
         url: response.link,
         date: response.date,
         type: response.type,
@@ -237,9 +248,9 @@ class PostSelector extends Component {
     return (
       <ul>
         {this.props.posts.map((post, i) => (
-          <li style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'nowrap' }} key={post.id}>
-          	{ post.thumbnail ? ( 
-          	<img src={ post.thumbnail } style={{ width: '50px', height: '50px', margin: '1px' }} />
+          <li style={ postListStyle } key={post.id}>
+          	{ post.cover ? ( 
+          	<img src={ post.cover } style={thumbnailStyle} />
           	): null}
             {
               /* render the post type if we have the data to support it */
@@ -344,7 +355,7 @@ class PostSelector extends Component {
             value={input}
             onChange={this.onChange}
             onInput={stopEventPropagation}
-            placeholder={inputDisabled ? `Limted to ${limit} posts` : 'Type page or post name'}
+            placeholder={inputDisabled ? `Limted to ${limit} posts` : 'Type recipe or post name'}
             onKeyDown={this.onKeyDown}
             role="combobox"
             aria-expanded={showSuggestions}
