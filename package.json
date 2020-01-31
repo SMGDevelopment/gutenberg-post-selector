@@ -4,7 +4,8 @@
   "description": "A Gutenberg component that allows you to attach posts and pages to a custom block",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build src/index.js -d ./"
+    "build": "parcel build src/index.js -d ./",
+    "start": "parcel watch src/index.js -d ./"
   },
   "repository": {
     "type": "git",

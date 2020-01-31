@@ -17,6 +17,8 @@ const subtypeStyle = {
   fontSize: '80%'
 }
 
+
+
 function debounce(func, wait = 100) {
   let timeout;
   return function (...args) {
@@ -95,7 +97,7 @@ class PostSelector extends Component {
     });
 
     const request = apiFetch({
-      path: addQueryArgs('/wp/v2/search', {
+      path: addQueryArgs('/wp/v2/search?_embed', {
         search: value,
         per_page: 20,
         type: 'post',
@@ -200,13 +202,14 @@ class PostSelector extends Component {
     const restBase = this.getPostTypeData(post.subtype).restBase;
 
     apiFetch({
-      path: `/wp/v2/${restBase}/${post.id}`
+      path: `/wp/v2/${restBase}/${post.id}?_embed`
     }).then(response => {
       const excerpt = response.excerpt ? response.excerpt.rendered : '';
       const fullpost = {
         title: decodeEntities(response.title.rendered),
         id: response.id,
         excerpt: decodeEntities(excerpt),
+        thumbnail: lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
         url: response.link,
         date: response.date,
         type: response.type,
@@ -229,12 +232,13 @@ class PostSelector extends Component {
       <ul>
         {this.props.posts.map((post, i) => (
           <li style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'nowrap' }} key={post.id}>
-
+          	{ post.thumbnail ? ( 
+          	<img src={ post.thumbnail } style={{ width: '50px', height: '50px', margin: '1px' }} />
+          	): null}
             {
               /* render the post type if we have the data to support it */
               this.hasPostTypeData() && <span style={subtypeStyle}>{this.getPostTypeData(post.type).displayName}</span>
             }
-
             <span style={{ flex: 1 }}>{post.title}</span>
             <span>
               {i !== 0 ? (
@@ -311,6 +315,11 @@ class PostSelector extends Component {
     return this.postTypes !== null;
   }
 
+  renderImage(post) {
+  	let image = lodash.get(post, '_embedded.self.0.cover')
+  	return image
+  }
+
   render() {
     this.resolvePostTypes(this.props.sourcePostTypes);
     const { autoFocus = true, instanceId, limit } = this.props;
@@ -357,10 +366,10 @@ class PostSelector extends Component {
                     aria-selected={index === selectedSuggestion}
                   >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-
+                    	<img src={ this.renderImage(post) } style={{ width: '50px', height:'50px', borderRadius: '3px', overflow: 'hidden', margin: '2px' }} />
                       {
                         /* render the post type if we have the data to support it */
-                        this.hasPostTypeData() && <div style={subtypeStyle}>{this.getPostTypeData(post.subtype).displayName}</div>
+                        this.hasPostTypeData() && <div style={subtypeStyle} src={post.thumbnail}>{this.getPostTypeData(post.subtype).displayName}</div>
                       }
 
                       <div>{decodeEntities(post.title) || '(no title)'}</div>
