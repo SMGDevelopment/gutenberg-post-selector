@@ -17,7 +17,13 @@ const subtypeStyle = {
   fontSize: '80%'
 }
 
-
+const thumbnailStyle = { 
+	width: '50px', 
+	height:'50px', 
+	borderRadius: '3px', 
+	overflow: 'hidden', 
+	margin: '2px' 
+}
 
 function debounce(func, wait = 100) {
   let timeout;
@@ -209,7 +215,7 @@ class PostSelector extends Component {
         title: decodeEntities(response.title.rendered),
         id: response.id,
         excerpt: decodeEntities(excerpt),
-        thumbnail: lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
+        thumbnail: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
         url: response.link,
         date: response.date,
         type: response.type,
@@ -366,7 +372,7 @@ class PostSelector extends Component {
                     aria-selected={index === selectedSuggestion}
                   >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                    	<img src={ this.renderImage(post) } style={{ width: '50px', height:'50px', borderRadius: '3px', overflow: 'hidden', margin: '2px' }} />
+                    	<img src={ this.renderImage(post) } style={thumbnailStyle} />
                       {
                         /* render the post type if we have the data to support it */
                         this.hasPostTypeData() && <div style={subtypeStyle} src={post.thumbnail}>{this.getPostTypeData(post.subtype).displayName}</div>

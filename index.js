@@ -2270,6 +2270,13 @@ var subtypeStyle = {
   marginRight: '10px',
   fontSize: '80%'
 };
+var thumbnailStyle = {
+  width: '50px',
+  height: '50px',
+  borderRadius: '3px',
+  overflow: 'hidden',
+  margin: '2px'
+};
 
 function debounce(func) {
   var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
@@ -2515,7 +2522,7 @@ function (_Component) {
           title: decodeEntities(response.title.rendered),
           id: response.id,
           excerpt: decodeEntities(excerpt),
-          thumbnail: lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
+          thumbnail: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
           url: response.link,
           date: response.date,
           type: response.type,
@@ -2725,13 +2732,7 @@ function (_Component) {
           }
         }, _react.default.createElement("img", {
           src: _this7.renderImage(post),
-          style: {
-            width: '50px',
-            height: '50px',
-            borderRadius: '3px',
-            overflow: 'hidden',
-            margin: '2px'
-          }
+          style: thumbnailStyle
         }),
         /* render the post type if we have the data to support it */
         _this7.hasPostTypeData() && _react.default.createElement("div", {
