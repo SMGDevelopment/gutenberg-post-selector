@@ -2390,7 +2390,7 @@ function (_Component) {
       var request = apiFetch({
         path: addQueryArgs('/wp/v2/search?_embed', {
           search: value,
-          per_page: 20,
+          per_page: 8,
           type: 'post',
           subtype: this.props.postType ? this.props.postType : undefined
         })
@@ -2475,83 +2475,31 @@ function (_Component) {
   }, {
     key: "selectLink",
     value: function selectLink(post) {
-      var _this5 = this;
+      console.log('selected', post);
+      var response = post; // get the "full" post data if a post was selected. this may be something to add as a prop in the future for custom use cases.
 
-      // get the "full" post data if a post was selected. this may be something to add as a prop in the future for custom use cases.
-      if (this.props.data) {
-        // if data already exists in the post object, there's no need to make an API call.
-        var reachOutToApi = false;
-        var returnData = {};
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.props.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var prop = _step.value;
-
-            if (!post.hasOwnProperty(prop)) {
-              reachOutToApi = true;
-              return;
-            }
-
-            returnData[prop] = post[prop];
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return != null) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-
-        if (!reachOutToApi) {
-          this.props.onPostSelect(returnData);
-          this.setState({
-            input: '',
-            selectedSuggestion: null,
-            showSuggestions: false
-          });
-          return;
-        }
-      } // get the base of the URL for the post API request
-
-
-      var restBase = this.getPostTypeData(post.subtype).restBase;
-      apiFetch({
-        path: "/wp/v2/".concat(restBase, "/").concat(post.id, "?_embed")
-      }).then(function (response) {
-        var excerpt = response.excerpt ? response.excerpt.rendered : '';
-        var fullpost = {
-          title: decodeEntities(response.title.rendered),
-          id: response.id,
-          excerpt: decodeEntities(excerpt),
-          cover: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
-          url: response.link,
-          date: response.date,
-          type: response.type,
-          status: response.status
-        }; // send data to the block;
-
-        _this5.props.onPostSelect(fullpost);
-      });
+      var fullpost = {
+        title: decodeEntities(response.title),
+        id: response.id,
+        cover: response.cover || lodash.get(response, '_embedded.self.0.cover'),
+        url: response.link,
+        date: response.date,
+        type: response.type,
+        subtype: response.subtype,
+        status: response.status
+      };
+      this.props.onPostSelect(fullpost);
       this.setState({
         input: '',
         selectedSuggestion: null,
         showSuggestions: false
       });
+      return;
     }
   }, {
     key: "renderSelectedPosts",
     value: function renderSelectedPosts() {
-      var _this6 = this;
+      var _this5 = this;
 
       // show each post in the list.
       return _react.default.createElement("ul", null, this.props.posts.map(function (post, i) {
@@ -2563,9 +2511,9 @@ function (_Component) {
           style: thumbnailStyle
         }) : null,
         /* render the post type if we have the data to support it */
-        _this6.hasPostTypeData() && _react.default.createElement("span", {
+        _this5.hasPostTypeData() && _react.default.createElement("span", {
           style: subtypeStyle
-        }, _this6.getPostTypeData(post.type).displayName), _react.default.createElement("span", {
+        }, _this5.getPostTypeData(post.type).displayName), _react.default.createElement("span", {
           style: {
             flex: 1
           }
@@ -2577,15 +2525,15 @@ function (_Component) {
           },
           icon: "arrow-up-alt2",
           onClick: function onClick() {
-            _this6.props.posts.splice(i - 1, 0, _this6.props.posts.splice(i, 1)[0]);
+            _this5.props.posts.splice(i - 1, 0, _this5.props.posts.splice(i, 1)[0]);
 
-            _this6.props.onChange(_this6.props.posts);
+            _this5.props.onChange(_this5.props.posts);
 
-            _this6.setState({
-              state: _this6.state
+            _this5.setState({
+              state: _this5.state
             });
           }
-        }) : null, i !== _this6.props.posts.length - 1 ? _react.default.createElement(IconButton, {
+        }) : null, i !== _this5.props.posts.length - 1 ? _react.default.createElement(IconButton, {
           style: {
             display: 'inline-flex',
             padding: '8px 2px',
@@ -2593,12 +2541,12 @@ function (_Component) {
           },
           icon: "arrow-down-alt2",
           onClick: function onClick() {
-            _this6.props.posts.splice(i + 1, 0, _this6.props.posts.splice(i, 1)[0]);
+            _this5.props.posts.splice(i + 1, 0, _this5.props.posts.splice(i, 1)[0]);
 
-            _this6.props.onChange(_this6.props.posts);
+            _this5.props.onChange(_this5.props.posts);
 
-            _this6.setState({
-              state: _this6.state
+            _this5.setState({
+              state: _this5.state
             });
           }
         }) : null, _react.default.createElement(IconButton, {
@@ -2608,13 +2556,13 @@ function (_Component) {
           },
           icon: "no",
           onClick: function onClick() {
-            _this6.props.posts.splice(i, 1);
+            _this5.props.posts.splice(i, 1);
 
-            _this6.props.onChange(_this6.props.posts); // force a re-render.
+            _this5.props.onChange(_this5.props.posts); // force a re-render.
 
 
-            _this6.setState({
-              state: _this6.state
+            _this5.setState({
+              state: _this5.state
             });
           }
         })));
@@ -2668,7 +2616,7 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this7 = this;
+      var _this6 = this;
 
       this.resolvePostTypes(this.props.sourcePostTypes);
       var _this$props = this.props,
@@ -2686,8 +2634,9 @@ function (_Component) {
       /* eslint-disable jsx-a11y/no-autofocus */
 
       return _react.default.createElement(Fragment, null, this.renderSelectedPosts(), _react.default.createElement("div", {
-        className: "block-editor-url-input"
+        className: "block-editor-url-input smg-postselector"
       }, _react.default.createElement("input", {
+        className: "postselector-input",
         autoFocus: autoFocus,
         type: "text",
         "aria-label": 'URL',
@@ -2711,7 +2660,7 @@ function (_Component) {
         noArrow: true,
         focusOnMount: false
       }, _react.default.createElement("div", {
-        className: "block-editor-url-input__suggestions",
+        className: "block-editor-url-input__suggestions smg-postselector-popover",
         id: "block-editor-url-input-suggestions-".concat(instanceId),
         ref: this.bindListNode,
         role: "listbox"
@@ -2721,10 +2670,10 @@ function (_Component) {
           role: "option",
           tabIndex: "-1",
           id: "block-editor-url-input-suggestion-".concat(instanceId, "-").concat(index),
-          ref: _this7.bindSuggestionNode(index),
+          ref: _this6.bindSuggestionNode(index),
           className: "block-editor-url-input__suggestion ".concat(index === selectedSuggestion ? 'is-selected' : ''),
           onClick: function onClick() {
-            return _this7.selectLink(post);
+            return _this6.selectLink(post);
           },
           "aria-selected": index === selectedSuggestion
         }, _react.default.createElement("div", {
@@ -2733,14 +2682,14 @@ function (_Component) {
             alignItems: 'center'
           }
         }, _react.default.createElement("img", {
-          src: _this7.renderImage(post),
+          src: _this6.renderImage(post),
           style: thumbnailStyle
         }),
         /* render the post type if we have the data to support it */
-        _this7.hasPostTypeData() && _react.default.createElement("div", {
+        _this6.hasPostTypeData() && _react.default.createElement("div", {
           style: subtypeStyle,
           src: post.thumbnail
-        }, _this7.getPostTypeData(post.subtype).displayName), _react.default.createElement("div", null, decodeEntities(post.title) || '(no title)')));
+        }, _this6.getPostTypeData(post.subtype).displayName), _react.default.createElement("div", null, decodeEntities(post.title) || '(no title)')));
       }))));
       /* eslint-enable jsx-a11y/no-autofocus */
     }
@@ -2800,7 +2749,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57814" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64093" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

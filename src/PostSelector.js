@@ -116,7 +116,7 @@ class PostSelector extends Component {
     const request = apiFetch({
       path: addQueryArgs('/wp/v2/search?_embed', {
         search: value,
-        per_page: 20,
+        per_page: 8,
         type: 'post',
         subtype: this.props.postType ? this.props.postType : undefined
       })
@@ -191,56 +191,28 @@ class PostSelector extends Component {
   }
 
   selectLink(post) {
+  	console.log('selected', post)
+  	let response = post
     // get the "full" post data if a post was selected. this may be something to add as a prop in the future for custom use cases.
-    if (this.props.data) {
-      // if data already exists in the post object, there's no need to make an API call.
-      let reachOutToApi = false;
-      const returnData = {};
-      for (const prop of this.props.data) {
-        if (!post.hasOwnProperty(prop)) {
-          reachOutToApi = true;
-          return;
-        }
-        returnData[prop] = post[prop];
-      }
-
-      if (!reachOutToApi) {
-        this.props.onPostSelect(returnData);
-        this.setState({
-          input: '',
-          selectedSuggestion: null,
-          showSuggestions: false
-        });
-        return;
-      }
-    }
-
-    // get the base of the URL for the post API request
-    const restBase = this.getPostTypeData(post.subtype).restBase;
-
-    apiFetch({
-      path: `/wp/v2/${restBase}/${post.id}?_embed`
-    }).then(response => {
-      const excerpt = response.excerpt ? response.excerpt.rendered : '';
-      const fullpost = {
-        title: decodeEntities(response.title.rendered),
+    const fullpost = {
+        title: decodeEntities(response.title),
         id: response.id,
-        excerpt: decodeEntities(excerpt),
-        cover: response.cover || lodash.get(response, '_embedded.wp:featuredmedia.0.media_details.sizes.thumbnail.source_url'),
+        cover: response.cover || lodash.get(response, '_embedded.self.0.cover'),
         url: response.link,
         date: response.date,
         type: response.type,
+        subtype: response.subtype,
         status: response.status
       };
-      // send data to the block;
-      this.props.onPostSelect(fullpost);
-    });
-
+    this.props.onPostSelect(fullpost);
     this.setState({
       input: '',
       selectedSuggestion: null,
       showSuggestions: false
     });
+
+    return
+    
   }
 
   renderSelectedPosts() {
@@ -346,8 +318,9 @@ class PostSelector extends Component {
     return (
       <Fragment>
         {this.renderSelectedPosts()}
-        <div className="block-editor-url-input">
+        <div className="block-editor-url-input smg-postselector">
           <input
+          	className="postselector-input"
             autoFocus={autoFocus}
             type="text"
             aria-label={'URL'}
@@ -370,7 +343,7 @@ class PostSelector extends Component {
         {showSuggestions &&
           !!posts.length && (
             <Popover position="bottom" noArrow focusOnMount={false}>
-              <div className="block-editor-url-input__suggestions" id={`block-editor-url-input-suggestions-${instanceId}`} ref={this.bindListNode} role="listbox">
+              <div className="block-editor-url-input__suggestions smg-postselector-popover" id={`block-editor-url-input-suggestions-${instanceId}`} ref={this.bindListNode} role="listbox">
                 {posts.map((post, index) => (
                   <button
                     key={post.id}
