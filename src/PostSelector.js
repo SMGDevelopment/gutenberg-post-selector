@@ -6,6 +6,7 @@ const { withInstanceId } = wp.compose;
 const { withSelect } = wp.data;
 const { apiFetch } = wp;
 const { addQueryArgs } = wp.url;
+import { get } from 'lodash-es'
 
 const stopEventPropagation = event => event.stopPropagation();
 
@@ -17,18 +18,18 @@ const subtypeStyle = {
   fontSize: '80%'
 }
 
-const thumbnailStyle = { 
-	width: '50px', 
-	height:'50px', 
-	borderRadius: '3px', 
-	overflow: 'hidden', 
+const thumbnailStyle = {
+	width: '50px',
+	height:'50px',
+	borderRadius: '3px',
+	overflow: 'hidden',
 	margin: '2px'
 }
 
-const postListStyle = { 
-	display: 'flex', 
-	justifyContent: 'flex-start', 
-	alignItems: 'center', 
+const postListStyle = {
+	display: 'flex',
+	justifyContent: 'flex-start',
+	alignItems: 'center',
 	flexWrap: 'nowrap',
 	background: '#f9f9f9',
   border: '1px solid #ccc',
@@ -197,7 +198,7 @@ class PostSelector extends Component {
     const fullpost = {
         title: decodeEntities(response.title),
         id: response.id,
-        cover: response.cover || lodash.get(response, '_embedded.self.0.cover'),
+        cover: response.cover || get(response, '_embedded.self.0.cover'),
         url: response.link,
         date: response.date,
         type: response.type,
@@ -212,7 +213,7 @@ class PostSelector extends Component {
     });
 
     return
-    
+
   }
 
   renderSelectedPosts() {
@@ -221,7 +222,7 @@ class PostSelector extends Component {
       <ul>
         {this.props.posts.map((post, i) => (
           <li style={ postListStyle } key={post.id}>
-          	{ post.cover ? ( 
+          	{ post.cover ? (
           	<img src={ post.cover } style={thumbnailStyle} />
           	): null}
             {
@@ -305,7 +306,7 @@ class PostSelector extends Component {
   }
 
   renderImage(post) {
-  	let image = lodash.get(post, '_embedded.self.0.cover')
+  	let image = get(post, '_embedded.self.0.cover')
   	return image
   }
 
